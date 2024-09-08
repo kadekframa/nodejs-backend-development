@@ -4,13 +4,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const bodyParser = require('body-parser');
+// const cors = require('cors');
+const multer = require('multer');
 const app = (0, express_1.default)();
 const port = 4000;
 app.use(express_1.default.json());
+app.use(bodyParser.json());
+// app.use(cors());
+const upload = multer({ dest: 'uploads/' });
 let products = [
     { id: 1, name: 'Laptop', price: 1000 },
     { id: 2, name: 'Phone', price: 500 },
     { id: 3, name: 'Ebook', price: 200 },
+];
+let productsGambar = [
+    { id: 1, name: 'Laptop', price: 1000, image: "" },
 ];
 let categories = [
     { id: 1, name: 'Elektronik' },
@@ -29,6 +38,17 @@ app.get('/api/products/:id', (req, res) => {
     else {
         res.status(404).json({ message: "Product not found" });
     }
+});
+// POST produk baru dengan upload gambar
+app.post('/api/products-foto', upload.single('image'), (req, res) => {
+    const newProduct = {
+        id: products.length ? products[products.length - 1].id + 1 : 1,
+        name: req.body.name,
+        price: req.body.price,
+        image: req.file ? req.file.path : ''
+    };
+    productsGambar.push(newProduct);
+    res.status(201).json(newProduct);
 });
 app.post('/api/products', (req, res) => {
     const newProduct = req.body;
